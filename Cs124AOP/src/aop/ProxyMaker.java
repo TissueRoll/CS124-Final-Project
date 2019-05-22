@@ -1,5 +1,9 @@
 package aop;
 
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.implementation.FixedValue;
+import net.bytebuddy.matcher.ElementMatchers;
+
 public class ProxyMaker 
 {
 	static AspectManager manager = new AspectManager();
@@ -8,9 +12,20 @@ public class ProxyMaker
 	{
 		// check if target class requires using a proxy
 			// if not, just return a new instance of the class
-		
-		return null;
-
+		if (manager.needsProxy(target)) {
+			ClassLoader classLoader = target.getClassLoader();
+			Class<?> proxiedTarget = new ByteBuddy()
+					.subclass(target)
+					.method(ElementMatchers.any())
+					.intercept(FixedValue.value("hi"))
+					.make()
+					.load(classLoader)
+					.getLoaded();
+			return proxiedTarget.newInstance();
+		} else {
+			return target.newInstance();
+		}
+		// return null;
 	}
 	
 	
