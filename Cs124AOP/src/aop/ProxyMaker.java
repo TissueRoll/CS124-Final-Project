@@ -10,7 +10,7 @@ import net.bytebuddy.matcher.ElementMatchers;
 
 public class ProxyMaker 
 {
-	static AspectManager manager = new AspectManager();
+	static AspectManager manager = AspectManager.getAspectManager();
 	
 	public static Object makeInstance(Class target) throws Exception
 	{

@@ -37,7 +37,7 @@ public class AspectInterceptor {
 		
 		// before
 		
-		AspectManager am = new AspectManager();
+		AspectManager am = AspectManager.getAspectManager();
 		
 		//System.out.println("ENTER METHOD: "+method.getName());
 //		System.out.println("interceptor of method: " + method.getName());

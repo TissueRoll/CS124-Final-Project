@@ -17,14 +17,23 @@ import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
 
 public class AspectManager {
 	
-	// can probably use singleton here
-	
+	private static AspectManager singleton = null;
 	private ArrayList<Object> aspectList = new ArrayList();
 	private ArrayList<Object> beforeList = new ArrayList();
 	private ArrayList<Object> afterList = new ArrayList();
-	public AspectManager() 
+	
+	private AspectManager() 
 	{
 		init();
+	}
+	
+	// used singleton design pattern because it just does 1 thing and it can just persist through all
+	public static AspectManager getAspectManager()
+	{
+		if (singleton == null) {
+			singleton = new AspectManager();
+		}
+		return singleton;
 	}
 	
 	public void init() 
@@ -86,6 +95,11 @@ public class AspectManager {
 				}
 			}
 		}
+	}
+	
+	public Object processAround(Method method, Object[] args) throws Exception
+	{
+		return null;
 	}
 	
 	public boolean pointcutMatch(Pointcut p, Method method) {
