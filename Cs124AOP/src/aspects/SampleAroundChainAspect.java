@@ -7,8 +7,15 @@ import aop.annotations.Aspect;
 import aop.annotations.Pointcut;
 import aop.annotations.Targets;
 
-@Aspect
-public class SampleAroundChainAspect {
+public class SampleAroundChainAspect implements SampleAroundChainInterface{
+	SampleAroundChainInterface saci;
+	int level;
+	
+	public SampleAroundChainAspect() {
+		saci = null;
+		level = -1;
+	}
+	
 	@Pointcut(methodPatterns= {"set.*", "get.*"}, params = {}, returnType = void.class)
 	public void methods()
 	{
@@ -19,27 +26,22 @@ public class SampleAroundChainAspect {
 	public void targets()
 	{
 	}
-	
-	// assume all methods are this parameter signature
-	@Around
-	public Object around1(Object instance, Method m, Object[] args) throws Exception
-	{
+
+	@Override
+	public Object process(Object instance, Method m, Object[] args) throws Exception {
+		// TODO Auto-generated method stub
 		Object returnedObject = null;
-
-		System.out.println("AROUND1 START" + m.getName());
-		returnedObject = around2(instance, m, args);
-		System.out.println("AROUND2 END" + m.getName());
-
+		System.out.println("AROUND" + level + " START "+m.getName());
+		if (saci == null) returnedObject = m.invoke(instance, args);
+		else returnedObject = saci.process(instance, m, args);
+		System.out.println("AROUND" + level + " END "+m.getName());
 		return returnedObject;
 	}
 
-	public Object around2(Object instance, Method m, Object[] args) throws Exception {
-
-		Object returnedObject = null;
-		System.out.println("AROUND START "+m.getName());
-		returnedObject = m.invoke(instance, args);
-		System.out.println("AROUND END "+m.getName());
-
-		return returnedObject;
+	@Override
+	public void init(SampleAroundChainInterface nextSaci, int level) {
+		// TODO Auto-generated method stub
+		this.saci = nextSaci;
+		this.level = level;
 	}
 }
