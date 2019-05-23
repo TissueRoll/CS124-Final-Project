@@ -22,11 +22,12 @@ public class SampleAroundAspect {
 	
 	// assume all methods are this parameter signature
 	@Around
-	public void before(Method m, Object[] args) throws Exception
+	public Object before(Method m, Object[] args) throws Exception
 	{
+		Object returnedObject = null;
 		System.out.println("AROUND START "+m.getName());
 		
 		System.out.println("AROUND END "+m.getName());
-		
+		return returnedObject;
 	}
 }

@@ -84,7 +84,7 @@ public class AspectManager {
 			Class aspect = beforeAspect.getClass();
 			Pointcut p = (Pointcut) aspect.getDeclaredMethod("methods").getDeclaredAnnotation(Pointcut.class);
 			for(Method m: aspect.getDeclaredMethods()) {
-				if(m.getDeclaredAnnotation(Before.class) != null && pointcutMatch(p, method)) {
+				if(m.getDeclaredAnnotation(Before.class) != null && pointcutMatch(p, method, args)) {
 					Object[] nargs = {method, args};
 					m.invoke(beforeAspect, nargs);	
 				}
@@ -99,7 +99,7 @@ public class AspectManager {
 			Class aspect = afterAspect.getClass();
 			Pointcut p = (Pointcut) aspect.getDeclaredMethod("methods").getDeclaredAnnotation(Pointcut.class);
 			for(Method m: aspect.getDeclaredMethods()) {
-				if(m.getDeclaredAnnotation(After.class) != null && pointcutMatch(p, method)) {
+				if(m.getDeclaredAnnotation(After.class) != null && pointcutMatch(p, method, args)) {
 					Object[] nargs = {method, args};
 					m.invoke(afterAspect, nargs);	
 				}
@@ -115,7 +115,7 @@ public class AspectManager {
 			Class aspect = aroundAspect.getClass();
 			Pointcut p = (Pointcut) aspect.getDeclaredMethod("methods").getDeclaredAnnotation(Pointcut.class);
 			for (Method m : aspect.getDeclaredMethods()) {
-				if(m.getDeclaredAnnotation(Around.class) != null && pointcutMatch(p,method)) {
+				if(m.getDeclaredAnnotation(Around.class) != null && pointcutMatch(p,method, args)) {
 					Object[] nargs = {method, args};
 					returnedObject = m.invoke(aroundAspect, nargs);
 				}
@@ -124,13 +124,37 @@ public class AspectManager {
 		return returnedObject;
 	}
 	
-	public boolean pointcutMatch(Pointcut p, Method method) {
+	// need to apply matching to param list and return type
+	public boolean pointcutMatch(Pointcut p, Method method, Object args[]) {
+		// check the RegEx
+		
+		boolean regexMatched = false; // at least one must match
 		for(String pattern: p.methodPatterns()) {
 			if(Pattern.matches(pattern, method.getName())) {
-				return true;
+				regexMatched = true;
 			}
 		}
-		return false;
+		
+		// check the Parameters and Return Type
+		boolean paramsAndReturnMatched = true; // all must match
+		Class<?>[] params = p.params();
+		if (args.length != p.params().length)  
+		{
+			paramsAndReturnMatched = false;
+		}
+		else 
+		{
+			for (int i = 0; i < args.length; i++) {
+				if (args[i].getClass() != params[i]) {
+					paramsAndReturnMatched = false;
+				}
+			}
+		}
+		
+		if (method.getReturnType() != p.returnType())
+			paramsAndReturnMatched = false;
+		
+		return regexMatched|paramsAndReturnMatched;
 	}
 	
 	public boolean needsProxy(Class c) throws Exception
