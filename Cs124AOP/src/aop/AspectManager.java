@@ -53,7 +53,6 @@ public class AspectManager {
 			for(String s: allResults) {
 				Class c = Class.forName(s);
 				Object aspect = c.newInstance();
-				aspectList.add(aspect);
 				for (Method m : c.getDeclaredMethods()) {
 					if(m.getDeclaredAnnotation(Targets.class)!= null) {
 						targetsMap.put(aspect, (Targets) m.getDeclaredAnnotation(Targets.class));
@@ -156,10 +155,8 @@ public class AspectManager {
 	{
 		// go through all Aspects scanned
 			// see if the class name matches any of their @Targets patterns
-		for(Object o: aspectList) {
-			Class aspect = o.getClass();
-			Targets target = (Targets) aspect.getDeclaredMethod("targets").getDeclaredAnnotation(Targets.class);
-			for(String s : target.classPatterns()) {
+		for (Map.Entry<Object, Targets> entry : targetsMap.entrySet()) {
+			for(String s : entry.getValue().classPatterns()) {
 				if(c.getName().matches(s)) {
 					return true;
 				}
