@@ -17,7 +17,7 @@ public class ProxyMaker
 		// check if target class requires using a proxy
 			// if not, just return a new instance of the class
 		if (manager.needsProxy(target)) {
-			
+			// when I need to implement Around, I need to change .method to use the InvocationHandler
 			Class<?> proxy = new ByteBuddy()
 					.subclass(target)
 					.method(ElementMatchers.isDeclaredBy(target)).intercept(MethodDelegation.to(AspectInterceptor.class))

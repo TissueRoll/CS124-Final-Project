@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import aop.annotations.After;
+import aop.annotations.Around;
 import aop.annotations.Aspect;
 import aop.annotations.Before;
 import aop.annotations.Pointcut;
@@ -18,9 +19,12 @@ import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
 public class AspectManager {
 	
 	private static AspectManager singleton = null;
+	
+	// possible to convert this to HashMap later for O(lg n) search
 	private ArrayList<Object> aspectList = new ArrayList();
 	private ArrayList<Object> beforeList = new ArrayList();
 	private ArrayList<Object> afterList = new ArrayList();
+	private ArrayList<Object> aroundList = new ArrayList();
 	
 	private AspectManager() 
 	{
@@ -55,6 +59,9 @@ public class AspectManager {
 					if(m.getDeclaredAnnotation(After.class) != null) {
 						afterList.add(aspect);
 					}
+					if(m.getDeclaredAnnotation(Around.class) != null) {
+						aroundList.add(aspect);
+					}
 				}
 				
 			}
@@ -65,6 +72,11 @@ public class AspectManager {
 	}
 	
 
+	/*
+	 * processBefore etc can be shortened pa
+	 * they all have the same thing
+	 */
+	
 	public void processBefore(Method method,  Object[] args) throws Exception
 	{
 		// process all the @Before that are applicable to this Method	
@@ -73,8 +85,6 @@ public class AspectManager {
 			Pointcut p = (Pointcut) aspect.getDeclaredMethod("methods").getDeclaredAnnotation(Pointcut.class);
 			for(Method m: aspect.getDeclaredMethods()) {
 				if(m.getDeclaredAnnotation(Before.class) != null && pointcutMatch(p, method)) {
-//					System.out.println("processBefore: " + args.length);
-//					System.out.println(m.getName());
 					Object[] nargs = {method, args};
 					m.invoke(beforeAspect, nargs);	
 				}
@@ -97,9 +107,21 @@ public class AspectManager {
 		}
 	}
 	
+	// WARNING: NOT CONFIRMED TO WORK
 	public Object processAround(Method method, Object[] args) throws Exception
 	{
-		return null;
+		Object returnedObject = null;
+		for (Object aroundAspect : aroundList) {
+			Class aspect = aroundAspect.getClass();
+			Pointcut p = (Pointcut) aspect.getDeclaredMethod("methods").getDeclaredAnnotation(Pointcut.class);
+			for (Method m : aspect.getDeclaredMethods()) {
+				if(m.getDeclaredAnnotation(Around.class) != null && pointcutMatch(p,method)) {
+					Object[] nargs = {method, args};
+					returnedObject = m.invoke(aroundAspect, nargs);
+				}
+			}
+		}
+		return returnedObject;
 	}
 	
 	public boolean pointcutMatch(Pointcut p, Method method) {
