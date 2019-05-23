@@ -5,6 +5,7 @@ import aop.annotations.After;
 import aop.annotations.Aspect;
 import aop.annotations.Pointcut;
 import aop.annotations.Targets;
+import aspects.tracker.TrackerSampleAfterAspect;
 
 
 @Aspect
@@ -26,5 +27,7 @@ public class SampleAfterAspect
 	public void after(Method m, Object[] args) throws Exception
 	{
 		System.out.println("AFTER "+m.getName());
+		TrackerSampleAfterAspect tsaa = TrackerSampleAfterAspect.getAfterTracker();
+		// System.out.println("Times called by callerID " + callerID +  ": " + tsaa.getCount(callerID));
 	}
 }

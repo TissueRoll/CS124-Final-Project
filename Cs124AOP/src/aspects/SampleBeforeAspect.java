@@ -14,13 +14,11 @@ public class SampleBeforeAspect
 	public void methods()
 	{
 	}
-	
 
 	@Targets(classPatterns="Test.*")
 	public void targets()
 	{
 	}
-	
 	
 	// assume all methods are this parameter signature
 	@Before

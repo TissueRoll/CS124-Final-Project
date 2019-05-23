@@ -25,14 +25,14 @@ public class AspectInterceptor {
 		AspectManager am = AspectManager.getAspectManager();
 		
 		// before		
-		am.processBefore(method, args);
+//		am.processBefore(method, args);
 		
 		// need to be able to use around here (am.processAround should return Object)
 		Object returnValue =  zuper.call();	
 //		Object returnValue = am.processAround(zuperClass, method, args);
 		
 		// after
-		am.processAfter(method, args);
+//		am.processAfter(method, args);
 		
 		return returnValue;
 

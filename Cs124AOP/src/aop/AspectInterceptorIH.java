@@ -16,7 +16,7 @@ public class AspectInterceptorIH implements InvocationHandler {
 		am.processBefore(method, args);
 		returnedObject = am.processAround(original, method, args);
 //		returnedObject = method.invoke(original, args); // for no around
-		am.processAfter(method, args);
+		am.processAfter(proxy.hashCode(), method, args);
 		return returnedObject;
 	}
 	

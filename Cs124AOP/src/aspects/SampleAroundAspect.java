@@ -7,7 +7,7 @@ import aop.annotations.Aspect;
 import aop.annotations.Pointcut;
 import aop.annotations.Targets;
 
-@Aspect
+//@Aspect
 public class SampleAroundAspect {
 	@Pointcut(methodPatterns= {"set.*", "get.*"}, params = {}, returnType = void.class)
 	public void methods()
