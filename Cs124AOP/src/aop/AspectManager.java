@@ -40,7 +40,7 @@ public class AspectManager {
 		return singleton;
 	}
 	
-	public void init() 
+	private void init() 
 	{
 		// scan all @Aspect in folder
 			// for each
@@ -108,7 +108,7 @@ public class AspectManager {
 	}
 	
 	// WARNING: NOT CONFIRMED TO WORK
-	public Object processAround(Method method, Object[] args) throws Exception
+	public Object processAround(Object instance, Method method, Object[] args) throws Exception
 	{
 		Object returnedObject = null;
 		for (Object aroundAspect : aroundList) {
@@ -116,7 +116,7 @@ public class AspectManager {
 			Pointcut p = (Pointcut) aspect.getDeclaredMethod("methods").getDeclaredAnnotation(Pointcut.class);
 			for (Method m : aspect.getDeclaredMethods()) {
 				if(m.getDeclaredAnnotation(Around.class) != null && pointcutMatch(p,method, args)) {
-					Object[] nargs = {method, args};
+					Object[] nargs = {instance, method, args};
 					returnedObject = m.invoke(aroundAspect, nargs);
 				}
 			}
@@ -127,7 +127,6 @@ public class AspectManager {
 	// need to apply matching to param list and return type
 	public boolean pointcutMatch(Pointcut p, Method method, Object args[]) {
 		// check the RegEx
-		
 		boolean regexMatched = false; // at least one must match
 		for(String pattern: p.methodPatterns()) {
 			if(Pattern.matches(pattern, method.getName())) {
@@ -153,6 +152,9 @@ public class AspectManager {
 		
 		if (method.getReturnType() != p.returnType())
 			paramsAndReturnMatched = false;
+		if (method.getReturnType() == Void.class) {
+			System.out.println("hi");
+		}
 		
 		return regexMatched|paramsAndReturnMatched;
 	}

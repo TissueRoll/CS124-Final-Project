@@ -23,7 +23,7 @@ public class SampleAfterAspect
 	
 	// assume all methods are this parameter signature
 	@After
-	public void before(Method m, Object[] args) throws Exception
+	public void after(Method m, Object[] args) throws Exception
 	{
 		System.out.println("AFTER "+m.getName());
 	}

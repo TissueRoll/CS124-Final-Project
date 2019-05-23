@@ -9,7 +9,7 @@ import aop.annotations.Targets;
 
 @Aspect
 public class SampleAroundAspect {
-	@Pointcut(methodPatterns= {"set.*", "get.*"}, params = {}, returnType = Void.class)
+	@Pointcut(methodPatterns= {"set.*", "get.*"}, params = {}, returnType = void.class)
 	public void methods()
 	{
 	}
@@ -22,11 +22,11 @@ public class SampleAroundAspect {
 	
 	// assume all methods are this parameter signature
 	@Around
-	public Object before(Method m, Object[] args) throws Exception
+	public Object around(Object instance, Method m, Object[] args) throws Exception
 	{
 		Object returnedObject = null;
 		System.out.println("AROUND START "+m.getName());
-		
+		returnedObject = m.invoke(instance, args);
 		System.out.println("AROUND END "+m.getName());
 		return returnedObject;
 	}
