@@ -10,4 +10,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Pointcut {
 	public String[] methodPatterns();
+	public Class<?>[] params();
+	public Class<?> returnType();
 }

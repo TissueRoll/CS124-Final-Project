@@ -10,7 +10,7 @@ import aop.annotations.Targets;
 @Aspect
 public class SampleBeforeAspect 
 {
-	@Pointcut(methodPatterns="get.*")
+	@Pointcut(methodPatterns="get.*", params = {}, returnType = Void.class)
 	public void methods()
 	{
 	}
