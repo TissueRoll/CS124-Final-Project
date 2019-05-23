@@ -78,12 +78,6 @@ public class AspectManager {
 
 	}
 	
-
-	/*
-	 * processBefore etc can be shortened pa
-	 * they all have the same thing
-	 */
-	
 	public void processBefore(Method method,  Object[] args) throws Exception
 	{
 		// process all the @Before that are applicable to this Method	
@@ -158,6 +152,8 @@ public class AspectManager {
 		for (Map.Entry<Object, Targets> entry : targetsMap.entrySet()) {
 			for(String s : entry.getValue().classPatterns()) {
 				if(c.getName().matches(s)) {
+					// store obj hashcode here
+					
 					return true;
 				}
 			}
