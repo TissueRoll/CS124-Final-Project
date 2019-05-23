@@ -18,7 +18,6 @@ public class ProxyMaker
 		// check if target class requires using a proxy
 			// if not, just return a new instance of the class
 		if (manager.needsProxy(target, targetObject)) {
-			// when I need to implement Around, I need to change .method to use the InvocationHandler
 			Class<?> proxy = new ByteBuddy()
 					.subclass(target)
 					.method(ElementMatchers.isDeclaredBy(target))
@@ -33,7 +32,6 @@ public class ProxyMaker
 		} else {
 			return target.newInstance();
 		}
-		// return null;
 	}
 	
 	

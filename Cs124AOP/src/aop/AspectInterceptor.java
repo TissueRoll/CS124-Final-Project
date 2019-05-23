@@ -10,7 +10,7 @@ import net.bytebuddy.implementation.bind.annotation.Super;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
 
 /*
- * when using Around, the Object is IMPORTANT -- need to change this implementation
+ * UNUSED
  */
 
 public class AspectInterceptor {
