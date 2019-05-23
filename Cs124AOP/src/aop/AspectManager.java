@@ -1,9 +1,11 @@
 package aop;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import aop.annotations.After;
 import aop.annotations.Aspect;
@@ -14,7 +16,9 @@ import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
 
 public class AspectManager {
-
+	
+	// can probably use singleton here
+	
 	private ArrayList<Object> aspectList = new ArrayList();
 	private ArrayList<Object> beforeList = new ArrayList();
 	private ArrayList<Object> afterList = new ArrayList();
@@ -35,12 +39,15 @@ public class AspectManager {
 				Class c = Class.forName(s);
 				Object aspect = c.newInstance();
 				aspectList.add(aspect);
-				if(c.getDeclaredAnnotation(Before.class) != null) {
-					beforeList.add(aspect);
+				for (Method m : c.getDeclaredMethods()) {
+					if(m.getDeclaredAnnotation(Before.class) != null) {
+						beforeList.add(aspect);
+					}
+					if(m.getDeclaredAnnotation(After.class) != null) {
+						afterList.add(aspect);
+					}
 				}
-				if(c.getDeclaredAnnotation(After.class) != null) {
-					afterList.add(aspect);
-				}
+				
 			}
 		} catch (Exception e) {
 			//TODO: handle exception
@@ -54,10 +61,13 @@ public class AspectManager {
 		// process all the @Before that are applicable to this Method	
 		for(Object beforeAspect: beforeList) {
 			Class aspect = beforeAspect.getClass();
-			Pointcut p = (Pointcut) aspect.getDeclaredAnnotation(Pointcut.class);
+			Pointcut p = (Pointcut) aspect.getDeclaredMethod("methods").getDeclaredAnnotation(Pointcut.class);
 			for(Method m: aspect.getDeclaredMethods()) {
 				if(m.getDeclaredAnnotation(Before.class) != null && pointcutMatch(p, method)) {
-					m.invoke(beforeAspect);	
+//					System.out.println("processBefore: " + args.length);
+//					System.out.println(m.getName());
+					Object[] nargs = {method, args};
+					m.invoke(beforeAspect, nargs);	
 				}
 			}
 		}
@@ -68,10 +78,11 @@ public class AspectManager {
 		// process all the @After that are applicable to this Method
 		for(Object afterAspect: afterList) {
 			Class aspect = afterAspect.getClass();
-			Pointcut p = (Pointcut) aspect.getDeclaredAnnotation(Pointcut.class);
+			Pointcut p = (Pointcut) aspect.getDeclaredMethod("methods").getDeclaredAnnotation(Pointcut.class);
 			for(Method m: aspect.getDeclaredMethods()) {
-				if(m.getDeclaredAnnotation(Before.class) != null && pointcutMatch(p, method)) {
-					m.invoke(afterAspect);	
+				if(m.getDeclaredAnnotation(After.class) != null && pointcutMatch(p, method)) {
+					Object[] nargs = {method, args};
+					m.invoke(afterAspect, nargs);	
 				}
 			}
 		}
@@ -79,20 +90,20 @@ public class AspectManager {
 	
 	public boolean pointcutMatch(Pointcut p, Method method) {
 		for(String pattern: p.methodPatterns()) {
-			if(pattern.matches(method.getName())) {
+			if(Pattern.matches(pattern, method.getName())) {
 				return true;
 			}
 		}
 		return false;
 	}
 	
-	public boolean needsProxy(Class c)
+	public boolean needsProxy(Class c) throws Exception
 	{
 		// go through all Aspects scanned
 			// see if the class name matches any of their @Targets patterns
 		for(Object o: aspectList) {
 			Class aspect = o.getClass();
-			Targets target = (Targets) aspect.getDeclaredAnnotation(Target.class);
+			Targets target = (Targets) aspect.getDeclaredMethod("targets").getDeclaredAnnotation(Targets.class);
 			for(String s : target.classPatterns()) {
 				if(c.getName().matches(s)) {
 					return true;

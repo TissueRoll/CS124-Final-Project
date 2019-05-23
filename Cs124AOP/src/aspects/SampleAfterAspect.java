@@ -16,7 +16,7 @@ public class SampleAfterAspect
 	}
 	
 
-	@Targets(classPatterns="Test.*")
+	@Targets(classPatterns= "Test.*")
 	public void targets()
 	{
 	}
