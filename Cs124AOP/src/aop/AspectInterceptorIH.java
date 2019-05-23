@@ -14,8 +14,8 @@ public class AspectInterceptorIH implements InvocationHandler {
 		Object returnedObject = null;
 		AspectManager am = AspectManager.getAspectManager();
 		am.processBefore(method, args);
-//		returnedObject = am.processAround(original, method, args);
-		returnedObject = method.invoke(original, args);
+		returnedObject = am.processAround(original, method, args);
+//		returnedObject = method.invoke(original, args);
 		am.processAfter(method, args);
 		return returnedObject;
 	}
