@@ -1,15 +1,14 @@
 package aspects;
+
 import java.lang.reflect.Method;
 
-import aop.annotations.After;
+import aop.annotations.Around;
 import aop.annotations.Aspect;
 import aop.annotations.Pointcut;
 import aop.annotations.Targets;
 
-
 @Aspect
-public class SampleAfterAspect 
-{
+public class SampleAroundAspect {
 	@Pointcut(methodPatterns= {"set.*", "get.*"}, params = {}, returnType = Void.class)
 	public void methods()
 	{
@@ -22,9 +21,13 @@ public class SampleAfterAspect
 	}
 	
 	// assume all methods are this parameter signature
-	@After
-	public void before(Method m, Object[] args) throws Exception
+	@Around
+	public Object before(Method m, Object[] args) throws Exception
 	{
-		System.out.println("AFTER "+m.getName());
+		Object returnedObject = null;
+		System.out.println("AROUND START "+m.getName());
+		
+		System.out.println("AROUND END "+m.getName());
+		return returnedObject;
 	}
 }

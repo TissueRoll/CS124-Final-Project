@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import aop.annotations.After;
+import aop.annotations.Around;
 import aop.annotations.Aspect;
 import aop.annotations.Before;
 import aop.annotations.Pointcut;
@@ -17,14 +18,26 @@ import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
 
 public class AspectManager {
 	
-	// can probably use singleton here
+	private static AspectManager singleton = null;
 	
+	// possible to convert this to HashMap later for O(lg n) search
 	private ArrayList<Object> aspectList = new ArrayList();
 	private ArrayList<Object> beforeList = new ArrayList();
 	private ArrayList<Object> afterList = new ArrayList();
-	public AspectManager() 
+	private ArrayList<Object> aroundList = new ArrayList();
+	
+	private AspectManager() 
 	{
 		init();
+	}
+	
+	// used singleton design pattern because it just does 1 thing and it can just persist through all
+	public static AspectManager getAspectManager()
+	{
+		if (singleton == null) {
+			singleton = new AspectManager();
+		}
+		return singleton;
 	}
 	
 	public void init() 
@@ -46,6 +59,9 @@ public class AspectManager {
 					if(m.getDeclaredAnnotation(After.class) != null) {
 						afterList.add(aspect);
 					}
+					if(m.getDeclaredAnnotation(Around.class) != null) {
+						aroundList.add(aspect);
+					}
 				}
 				
 			}
@@ -56,6 +72,11 @@ public class AspectManager {
 	}
 	
 
+	/*
+	 * processBefore etc can be shortened pa
+	 * they all have the same thing
+	 */
+	
 	public void processBefore(Method method,  Object[] args) throws Exception
 	{
 		// process all the @Before that are applicable to this Method	
@@ -63,9 +84,7 @@ public class AspectManager {
 			Class aspect = beforeAspect.getClass();
 			Pointcut p = (Pointcut) aspect.getDeclaredMethod("methods").getDeclaredAnnotation(Pointcut.class);
 			for(Method m: aspect.getDeclaredMethods()) {
-				if(m.getDeclaredAnnotation(Before.class) != null && pointcutMatch(p, method)) {
-//					System.out.println("processBefore: " + args.length);
-//					System.out.println(m.getName());
+				if(m.getDeclaredAnnotation(Before.class) != null && pointcutMatch(p, method, args)) {
 					Object[] nargs = {method, args};
 					m.invoke(beforeAspect, nargs);	
 				}
@@ -80,7 +99,7 @@ public class AspectManager {
 			Class aspect = afterAspect.getClass();
 			Pointcut p = (Pointcut) aspect.getDeclaredMethod("methods").getDeclaredAnnotation(Pointcut.class);
 			for(Method m: aspect.getDeclaredMethods()) {
-				if(m.getDeclaredAnnotation(After.class) != null && pointcutMatch(p, method)) {
+				if(m.getDeclaredAnnotation(After.class) != null && pointcutMatch(p, method, args)) {
 					Object[] nargs = {method, args};
 					m.invoke(afterAspect, nargs);	
 				}
@@ -88,13 +107,54 @@ public class AspectManager {
 		}
 	}
 	
-	public boolean pointcutMatch(Pointcut p, Method method) {
-		for(String pattern: p.methodPatterns()) {
-			if(Pattern.matches(pattern, method.getName())) {
-				return true;
+	// WARNING: NOT CONFIRMED TO WORK
+	public Object processAround(Method method, Object[] args) throws Exception
+	{
+		Object returnedObject = null;
+		for (Object aroundAspect : aroundList) {
+			Class aspect = aroundAspect.getClass();
+			Pointcut p = (Pointcut) aspect.getDeclaredMethod("methods").getDeclaredAnnotation(Pointcut.class);
+			for (Method m : aspect.getDeclaredMethods()) {
+				if(m.getDeclaredAnnotation(Around.class) != null && pointcutMatch(p,method, args)) {
+					Object[] nargs = {method, args};
+					returnedObject = m.invoke(aroundAspect, nargs);
+				}
 			}
 		}
-		return false;
+		return returnedObject;
+	}
+	
+	// need to apply matching to param list and return type
+	public boolean pointcutMatch(Pointcut p, Method method, Object args[]) {
+		// check the RegEx
+		
+		boolean regexMatched = false; // at least one must match
+		for(String pattern: p.methodPatterns()) {
+			if(Pattern.matches(pattern, method.getName())) {
+				regexMatched = true;
+			}
+		}
+		
+		// check the Parameters and Return Type
+		boolean paramsAndReturnMatched = true; // all must match
+		Class<?>[] params = p.params();
+		if (args.length != p.params().length)  
+		{
+			paramsAndReturnMatched = false;
+		}
+		else 
+		{
+			for (int i = 0; i < args.length; i++) {
+				if (args[i].getClass() != params[i]) {
+					paramsAndReturnMatched = false;
+				}
+			}
+		}
+		
+		if (method.getReturnType() != p.returnType())
+			paramsAndReturnMatched = false;
+		
+		return regexMatched|paramsAndReturnMatched;
 	}
 	
 	public boolean needsProxy(Class c) throws Exception
