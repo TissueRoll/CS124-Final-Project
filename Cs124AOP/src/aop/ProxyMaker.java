@@ -23,11 +23,11 @@ public class ProxyMaker
 					.subclass(target)
 					.method(ElementMatchers.isDeclaredBy(target))
 					//.intercept(MethodDelegation.to(AspectInterceptor.class))
-					.intercept(InvocationHandlerAdapter.of(new AspectInterceptorIH(target.newInstance())))
+					.intercept(InvocationHandlerAdapter.of(new AspectInterceptorIH(target.newInstance(), targetObject)))
 					.make()
 					.load(target.getClassLoader())
 					.getLoaded();
-			
+			System.out.println("ProxyMaker: " + targetObject.hashCode());
 			Object o = proxy.newInstance();
 			return o;
 		} else {

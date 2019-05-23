@@ -5,6 +5,7 @@ import aop.annotations.Aspect;
 import aop.annotations.Before;
 import aop.annotations.Pointcut;
 import aop.annotations.Targets;
+import aspects.tracker.TrackerSampleBeforeAspect;
 
 
 @Aspect
@@ -22,8 +23,10 @@ public class SampleBeforeAspect
 	
 	// assume all methods are this parameter signature
 	@Before
-	public void before(Method m, Object[] args) throws Exception
+	public void before(Integer callerID, Method m, Object[] args) throws Exception
 	{
 		System.out.println("BEFORE "+m.getName());
+		TrackerSampleBeforeAspect tsba = TrackerSampleBeforeAspect.getBeforeTracker();
+		System.out.println("\tBEFORE: times called by callerID " + callerID +  ": " + tsba.getCount(callerID));
 	}
 }

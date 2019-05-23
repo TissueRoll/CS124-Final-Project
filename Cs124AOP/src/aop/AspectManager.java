@@ -78,13 +78,13 @@ public class AspectManager {
 
 	}
 	
-	public void processBefore(Method method,  Object[] args) throws Exception
+	public void processBefore(Integer callerID, Method method,  Object[] args) throws Exception
 	{
 		// process all the @Before that are applicable to this Method	
 		for (Map.Entry<Object, Method> entry : beforeMap.entrySet()) {
 			if (pointcutMatch(pointcutMap.get(entry.getKey()), method, args)) {
-				Object[] nargs = {method, args}; // this stays
-				entry.getValue().invoke(entry.getKey(), nargs);	// this stays
+				Object[] nargs = {callerID, method, args}; 
+				entry.getValue().invoke(entry.getKey(), nargs);	
 			}
 		}
 	}
@@ -94,19 +94,19 @@ public class AspectManager {
 		// process all the @After that are applicable to this Method
 		for (Map.Entry<Object, Method> entry : afterMap.entrySet()) {
 			if (pointcutMatch(pointcutMap.get(entry.getKey()), method, args)) {
-				Object[] nargs = {method, args}; // this stays
+				Object[] nargs = {callerID, method, args}; 
 				entry.getValue().invoke(entry.getKey(), nargs);	
 			}
 		}
 	}
 	
 	// probably works
-	public Object processAround(Object instance, Method method, Object[] args) throws Exception
+	public Object processAround(Integer callerID, Object instance, Method method, Object[] args) throws Exception
 	{
 		Object returnedObject = null;
 		for (Map.Entry<Object, Method> entry : aroundMap.entrySet()) {
 			if (pointcutMatch(pointcutMap.get(entry.getKey()), method, args)) {
-				Object[] nargs = {instance, method, args}; // this stays
+				Object[] nargs = {callerID, instance, method, args}; 
 				returnedObject = entry.getValue().invoke(entry.getKey(), nargs);
 			}
 		}
@@ -153,7 +153,7 @@ public class AspectManager {
 			for(String s : entry.getValue().classPatterns()) {
 				if(c.getName().matches(s)) {
 					// store obj hashcode here
-					
+					System.out.println("AspectManager::needsProxy: " + obj.hashCode());
 					return true;
 				}
 			}

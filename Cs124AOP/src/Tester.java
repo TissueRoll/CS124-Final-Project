@@ -16,11 +16,11 @@ public class Tester {
 		
 		TestComponent1 tc2 = (TestComponent1) ProxyMaker.makeInstance(TestComponent1.class, TestComponent1.class.newInstance());
 		
-		tc.getName();
-		tc.getNameLongTime();
-		tc.setName("test");
-		tc.setName("test");
-		tc.toString();
+		tc2.getName();
+		tc2.getNameLongTime();
+		tc2.setName("test");
+		tc2.setName("test");
+		tc2.toString();
 	
 		
 // EXPECTED OUTPUT
