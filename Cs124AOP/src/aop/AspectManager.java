@@ -107,7 +107,7 @@ public class AspectManager {
 		}
 	}
 	
-	// WARNING: NOT CONFIRMED TO WORK
+	// probably works
 	public Object processAround(Object instance, Method method, Object[] args) throws Exception
 	{
 		Object returnedObject = null;

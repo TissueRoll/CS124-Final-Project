@@ -28,6 +28,13 @@ public class SampleAroundChainAspect implements SampleAroundChainInterface{
 	}
 
 	@Override
+	public void init(SampleAroundChainInterface nextSaci, int level) {
+		// TODO Auto-generated method stub
+		this.saci = nextSaci;
+		this.level = level;
+	}
+	
+	@Override
 	public Object process(Object instance, Method m, Object[] args) throws Exception {
 		// TODO Auto-generated method stub
 		Object returnedObject = null;
@@ -38,10 +45,4 @@ public class SampleAroundChainAspect implements SampleAroundChainInterface{
 		return returnedObject;
 	}
 
-	@Override
-	public void init(SampleAroundChainInterface nextSaci, int level) {
-		// TODO Auto-generated method stub
-		this.saci = nextSaci;
-		this.level = level;
-	}
 }
