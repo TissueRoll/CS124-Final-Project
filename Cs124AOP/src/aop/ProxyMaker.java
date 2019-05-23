@@ -1,7 +1,11 @@
 package aop;
 
 import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.dynamic.DynamicType;
+import net.bytebuddy.dynamic.DynamicType.Loaded;
+import net.bytebuddy.dynamic.DynamicType.Default.Unloaded;
 import net.bytebuddy.implementation.FixedValue;
+import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.matcher.ElementMatchers;
 
 public class ProxyMaker 
@@ -13,15 +17,16 @@ public class ProxyMaker
 		// check if target class requires using a proxy
 			// if not, just return a new instance of the class
 		if (manager.needsProxy(target)) {
-			ClassLoader classLoader = target.getClassLoader();
-			Class<?> proxiedTarget = new ByteBuddy()
+			
+			Class<?> proxy = new ByteBuddy()
 					.subclass(target)
-					.method(ElementMatchers.any())
-					.intercept(FixedValue.value("hi"))
+					.method(ElementMatchers.isDeclaredBy(target)).intercept(MethodDelegation.to(AspectInterceptor.class))
 					.make()
-					.load(classLoader)
+					.load(target.getClassLoader())
 					.getLoaded();
-			return proxiedTarget.newInstance();
+			
+			Object o = proxy.newInstance();
+			return o;
 		} else {
 			return target.newInstance();
 		}

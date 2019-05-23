@@ -35,11 +35,21 @@ public class AspectInterceptor {
 		// USUALLY THIS STYLE IS BEST FOR SITUATIONS YOU DONT CARE ABOUT THE RETURN
 		// JUST RETURN zuper.call()
 		
-		System.out.println("ENTER METHOD: "+method.getName());
+		// before
+		
+		AspectManager am = new AspectManager();
+		
+		//System.out.println("ENTER METHOD: "+method.getName());
+//		System.out.println("interceptor of method: " + method.getName());
+//		System.out.println("interceptor: " + args.length);
+		am.processBefore(method, args);
 		
 		Object returnValue =  zuper.call();	
 		
-		System.out.println("EXIT METHOD: "+method.getName());
+		// after
+		
+		am.processAfter(method, args);
+		//System.out.println("EXIT METHOD: "+method.getName());
 		
 		return returnValue;
 
