@@ -15,7 +15,7 @@ public class ProxyMaker
 	public static Object makeInstance(Class target) throws Exception
 	{
 		// check if target class requires using a proxy
-			// if not, just return a new instance of the class
+		// if not, just return a new instance of the class
 		if (manager.needsProxy(target)) {
 			
 			Class<?> proxy = new ByteBuddy()
@@ -30,8 +30,5 @@ public class ProxyMaker
 		} else {
 			return target.newInstance();
 		}
-		// return null;
-	}
-	
-	
+	}	
 }

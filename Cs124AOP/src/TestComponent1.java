@@ -1,5 +1,3 @@
-//TESTING ECLIPSE GIT
-
 public class TestComponent1 {
 
 	private String name = "comp1";

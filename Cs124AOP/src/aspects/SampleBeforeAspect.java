@@ -21,7 +21,6 @@ public class SampleBeforeAspect
 	{
 	}
 	
-	
 	// assume all methods are this parameter signature
 	@Before
 	public void before(Method m, Object[] args) throws Exception

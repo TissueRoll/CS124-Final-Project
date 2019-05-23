@@ -16,9 +16,7 @@ import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
 
 public class AspectManager {
-	
-	// can probably use singleton here
-	
+		
 	private ArrayList<Object> aspectList = new ArrayList();
 	private ArrayList<Object> beforeList = new ArrayList();
 	private ArrayList<Object> afterList = new ArrayList();
@@ -30,8 +28,8 @@ public class AspectManager {
 	public void init() 
 	{
 		// scan all @Aspect in folder
-			// for each
-				// scan @Targets, @Pointcut and advices
+		// for each
+		// scan @Targets, @Pointcut and advices
 		try {
 			ScanResult results = new FastClasspathScanner("aspects").scan();
 			List<String> allResults = results.getNamesOfClassesWithAnnotation(Aspect.class);
@@ -64,8 +62,6 @@ public class AspectManager {
 			Pointcut p = (Pointcut) aspect.getDeclaredMethod("methods").getDeclaredAnnotation(Pointcut.class);
 			for(Method m: aspect.getDeclaredMethods()) {
 				if(m.getDeclaredAnnotation(Before.class) != null && pointcutMatch(p, method)) {
-//					System.out.println("processBefore: " + args.length);
-//					System.out.println(m.getName());
 					Object[] nargs = {method, args};
 					m.invoke(beforeAspect, nargs);	
 				}
@@ -100,7 +96,7 @@ public class AspectManager {
 	public boolean needsProxy(Class c) throws Exception
 	{
 		// go through all Aspects scanned
-			// see if the class name matches any of their @Targets patterns
+		// see if the class name matches any of their @Targets patterns
 		for(Object o: aspectList) {
 			Class aspect = o.getClass();
 			Targets target = (Targets) aspect.getDeclaredMethod("targets").getDeclaredAnnotation(Targets.class);
